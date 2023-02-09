@@ -1,4 +1,9 @@
 #/bin/bash
+
+if ! command -v curl &> /dev/null || ! command -v git &> /dev/null || ! command -v jq &> /dev/null; then
+  sudo apt install -y curl git jq
+fi
+
 if [ ! ${MASSA_PASS} ]; then
 	read -p 'Enter your massa password: ' MASSA_PASS
 fi
@@ -8,13 +13,16 @@ source $HOME/.profile
 sudo systemctl stop massa
 rm -rf $HOME/massa
 
-wget https://github.com/massalabs/massa/releases/download/TEST.19.2/massa_TEST.19.2_release_linux.tar.gz
-tar zxvf massa_TEST.19.2_release_linux.tar.gz -C $HOME/
+RELEASE_INFO=$(curl --silent https://api.github.com/repos/massalabs/massa/releases/latest)
+TAG_NAME=$(echo $RELEASE_INFO | jq -r '.tag_name')
+
+wget https://github.com/massalabs/massa/releases/download/${TAG_NAME}/massa_${TAG_NAME}_release_linux.tar.gz
+tar zxvf massa_${TAG_NAME}_release_linux.tar.gz -C $HOME/
 
 sudo tee <<EOF >/dev/null /etc/systemd/system/massa.service
 [Unit]
 Description=Massa Node
-After=network-online.target  
+After=network-online.target
 
 [Service]
 User=$USER
@@ -36,12 +44,12 @@ echo "alias client='cd $HOME/massa/massa-client/ && $HOME/massa/massa-client/mas
 echo "alias clientw='cd $HOME/massa/massa-client/ && $HOME/massa/massa-client/massa-client --pwd $MASSA_PASS && cd'" >> ~/.profile
 
 if [ "$language" = "uk" ]; then
-    echo -e "\n\e[93mMassa TEST 19.1 \e[0m\n"
+    echo -e "\n\e[93mMassa $TAG_NAME \e[0m\n"
     echo -e "Подивитись логи ноди \e[92mjournalctl -u massa -f -o cat\e[0m"
     echo -e "\e[92mCTRL + C\e[0m щоб вийти з логів\n"
     echo -e "Зайти в меню ноди \e[92msource .profile && clientw\e[0m"
 else
-    echo -e "\n\e[93mMassa TEST 19.1 \e[0m\n"
+    echo -e "\n\e[93mMassa $TAG_NAME \e[0m\n"
     echo -e "Check node logs \e[92mjournalctl -u massa -f -o cat\e[0m"
     echo -e "\e[92mCTRL + C\e[0m to exit logs\n"
     echo -e "Open node menu \e[92msource .profile && clientw\e[0m"
