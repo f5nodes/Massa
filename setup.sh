@@ -8,8 +8,8 @@ source $HOME/.profile
 sudo systemctl stop massa
 rm -rf $HOME/massa
 
-wget https://github.com/massalabs/massa/releases/download/TEST.19.1/massa_TEST.19.1_release_linux.tar.gz
-tar zxvf massa_TEST.19.1_release_linux.tar.gz -C $HOME/
+wget https://github.com/massalabs/massa/releases/download/TEST.19.2/massa_TEST.19.2_release_linux.tar.gz
+tar zxvf massa_TEST.19.2_release_linux.tar.gz -C $HOME/
 
 sudo tee <<EOF >/dev/null /etc/systemd/system/massa.service
 [Unit]
